@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func makeRequest(id int) ([]byte, error) {
+func makeRequest(w http.ResponseWriter, id int) {
 	apiUrl := os.Getenv("API_URL")
 	getId := ""
 	if id == 0 {
@@ -22,8 +22,13 @@ func makeRequest(id int) ([]byte, error) {
 		log.Fatalln("Error Occurred while getting posts")
 	}
 
-	response, err := ioutil.ReadAll(body.Body)
 	defer body.Body.Close()
+	res, err := ioutil.ReadAll(body.Body)
 
-	return response, err
+	if err != nil {
+		panic(err.Error())
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
 }
